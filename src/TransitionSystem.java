@@ -1,3 +1,5 @@
+import javafx.animation.Transition;
+
 import java.util.ArrayList;
 
 /**
@@ -47,9 +49,25 @@ public class TransitionSystem {
     }
 
     public ArrayList<TransitionState> ctlEX(ArrayList<TransitionState> states){
-        ArrayList<TransitionState> ts = new ArrayList<TransitionState>();
+        ArrayList<TransitionState> tsList = new ArrayList<TransitionState>();
+        for(TransitionState ts : states){
+            for(int rs : ts.getRelatedStates()){
+                if(!tsList.contains(getTransitionStateFromId(rs))){
+                    tsList.add(getTransitionStateFromId(rs));
+                }
+            }
+        }
 
-        return ts;
+        return tsList;
+    }
+
+    private TransitionState getTransitionStateFromId(int id){
+        for(TransitionState ts : this.states){
+            if (ts.getState() == id){
+                return ts;
+            }
+        }
+        return null;
     }
 
     public String toString(){
