@@ -14,6 +14,6 @@ public class Main {
         ts.add(4, false, new String[] {"c"}, new int[] {4});
 
 
-        System.out.println(ts.ctlAP("c"));
+        System.out.println(ts.ctlEX(ts.ctlAG(ts.ctlAP("c"))));
     }
 }
