@@ -1,6 +1,8 @@
 import javafx.animation.Transition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Created by martinmeincke on 21/03/2017.
@@ -43,10 +45,20 @@ public class TransitionSystem {
     }
 
     public ArrayList<TransitionState> ctlAG(ArrayList<TransitionState> states){
-        ArrayList<TransitionState> ts = new ArrayList<TransitionState>();
+        ArrayList<TransitionState> tsList = new ArrayList<TransitionState>();
+        
+        for (TransitionState ts : states) {
+           for(int rs : ts.getRelatedStates()){
+            //if
+           }
 
-        return ts;
+        }
+
+
+        return tsList;
     }
+
+
 
     public ArrayList<TransitionState> ctlEX(ArrayList<TransitionState> states){
         ArrayList<TransitionState> tsList = new ArrayList<TransitionState>();
@@ -68,6 +80,29 @@ public class TransitionSystem {
             }
         }
         return null;
+    }
+
+    public ArrayList<TransitionState> not(ArrayList<TransitionState> inputStates){
+
+        HashSet<TransitionState> ts = new HashSet<TransitionState>();
+
+        for(TransitionState state : this.states){
+            if(!Arrays.stream(getStateIds(inputStates)).anyMatch(i -> i == state.getState())){
+                ts.add(state);
+            }
+        }
+        return new ArrayList<TransitionState>(ts);
+    }
+
+
+    public int[] getStateIds(ArrayList<TransitionState> states){
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+
+        for(TransitionState state : states){
+            ids.add(state.getState());
+        }
+
+        return ids.stream().mapToInt(i -> i).toArray();
     }
 
     public String toString(){
