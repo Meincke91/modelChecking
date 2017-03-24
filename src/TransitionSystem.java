@@ -60,12 +60,14 @@ public class TransitionSystem {
 
 
 
-    public ArrayList<TransitionState> ctlEX(ArrayList<TransitionState> states){
+    public ArrayList<TransitionState> ctlEX(ArrayList<TransitionState> tsInputs){
         ArrayList<TransitionState> tsList = new ArrayList<TransitionState>();
-        for(TransitionState ts : states){
+        for(TransitionState ts : this.states){
             for(int rs : ts.getRelatedStates()){
-                if(!tsList.contains(getTransitionStateFromId(rs))){
-                    tsList.add(getTransitionStateFromId(rs));
+                for(TransitionState tsInput : tsInputs){
+                    if(tsInput.getState() == rs && !tsList.contains(ts) ){
+                        tsList.add(ts);
+                    }
                 }
             }
         }
