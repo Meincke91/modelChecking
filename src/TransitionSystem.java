@@ -76,6 +76,10 @@ public class TransitionSystem {
         return tsList;
     }
 
+    public ArrayList<TransitionState> ctlAX(ArrayList<TransitionState> states){
+        return not(ctlEX(not(states)));
+    }
+
     private boolean compare(ArrayList<TransitionState> states1, ArrayList<TransitionState> states2){
         return states1.containsAll(states2);
     }
