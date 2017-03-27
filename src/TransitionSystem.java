@@ -67,14 +67,10 @@ public class TransitionSystem{
     }
 
     public ArrayList<TransitionState> ctlEF(ArrayList<TransitionState> inputStates){
-        ArrayList<TransitionState> returnStates = new ArrayList<TransitionState>();
         if(inputStates.isEmpty()){
-            return returnStates;
+            return new ArrayList<TransitionState>();
         }
         ArrayList<TransitionState> flippedSystem = getFlippedStates();
-
-        int[] inputIds = getStateIds(inputStates);
-
 
         ArrayList<Integer> visitedStates = new ArrayList<Integer>();
 
@@ -105,9 +101,8 @@ public class TransitionSystem{
 
         }
 
-        // Remove input states
-
-        return returnStates;
+        // Get a list of states from ids
+        return getAllTransitionStatesFromIds(visitedStates);
     }
 
     public ArrayList<TransitionState> ctlAX(ArrayList<TransitionState> states){
@@ -208,6 +203,16 @@ public class TransitionSystem{
     }
 
     private ArrayList<TransitionState> getAllTransitionStatesFromIds(int[] ids){
+        ArrayList<TransitionState> tsList = new ArrayList<TransitionState>();
+
+        for(int id : ids){
+            tsList.add(getTransitionStateFromId(id, this.getStates()));
+        }
+
+        return tsList;
+    }
+
+    private ArrayList<TransitionState> getAllTransitionStatesFromIds(ArrayList<Integer> ids){
         ArrayList<TransitionState> tsList = new ArrayList<TransitionState>();
 
         for(int id : ids){
