@@ -1,13 +1,17 @@
-import javafx.animation.Transition;
+import com.sun.tools.javac.util.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static com.sun.tools.doclint.Entity.copy;
+import static com.sun.tools.doclint.Entity.ge;
+import static javafx.scene.input.KeyCode.M;
 
 /**
  * Created by martinmeincke on 21/03/2017.
  */
-public class TransitionSystem {
+public class TransitionSystem{
     ArrayList<TransitionState> states;
 
     public TransitionSystem(){
@@ -62,6 +66,48 @@ public class TransitionSystem {
         return new ArrayList<TransitionState>();
     }
 
+    public ArrayList<TransitionState> ctlEF(ArrayList<TransitionState> inputStates){
+        ArrayList<TransitionState> returnStates = new ArrayList<TransitionState>();
+        if(inputStates.isEmpty()){
+            return returnStates;
+        }
+        ArrayList<TransitionState> flippedSystem = getFlippedStates();
+
+        int[] inputIds = getStateIds(inputStates);
+
+
+        ArrayList<Integer> visitedStates = new ArrayList<Integer>();
+
+        Stack<TransitionState> stack = new Stack<>();
+        // Push corresponding input states in flipped system onto the starting stack. The DFS will start from these
+        for(TransitionState state : inputStates){
+
+            stack.push(getTransitionStateFromId(state.getState(),flippedSystem));
+        }
+        //Fetch top element in the stack(without pop);
+        TransitionState node = stack.peek();
+        while(!stack.isEmpty()){
+            if(!visitedStates.contains(node.getState())) {
+                visitedStates.add(node.getState());
+            }
+            // Get child of node
+            Integer nextId = getNextUnvisitedID(node,visitedStates);
+            // Push child or pop if no unvisted child is found.
+            if(nextId != null){
+                node = getTransitionStateFromId(nextId,flippedSystem);
+                stack.push(node);
+            } else {
+                stack.pop();
+                if(!stack.empty()){
+                    node = stack.peek();
+                }
+            }
+
+        }
+
+        return returnStates;
+    }
+
 
 
     public ArrayList<TransitionState> ctlEX(ArrayList<TransitionState> tsInputs){
@@ -78,16 +124,67 @@ public class TransitionSystem {
         return tsList;
     }
 
+
+
     public ArrayList<TransitionState> ctlAX(ArrayList<TransitionState> states){
         return not(ctlEX(not(states)));
     }
+
+
+    // ------------------------------------------------- Helper methods --------------------------------------------- //
+
 
     private boolean compare(ArrayList<TransitionState> states1, ArrayList<TransitionState> states2){
         return states1.containsAll(states2);
     }
 
-    private TransitionState getTransitionStateFromId(int id){
-        for(TransitionState ts : this.states){
+    private Integer getNextUnvisitedID(TransitionState state,ArrayList<Integer> vistedStates ){
+        for(int id : state.getRelatedStates()) {
+            if(!vistedStates.contains(id)){
+                return id;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<TransitionState> getFlippedStates(){
+        // Clone states into new object to avoid modifying original
+        ArrayList<TransitionState> ts = new ArrayList<>();
+        for (TransitionState state : this.getStates()){
+            ts.add((TransitionState)state.clone());
+        }
+
+        // Add all states to return list, with no
+        for (TransitionState state : ts){
+            state.setRelatedStates(new int[] {});
+        }
+
+        // Add flipped related states.
+        for (TransitionState state : this.getStates()) {
+            for (int id : state.getRelatedStates()) {
+                TransitionState curState = getTransitionStateFromId(id, ts);
+                //Check if int array already contains value
+                if(!IntStream.of(curState.getRelatedStates()).anyMatch(x -> x == state.getState())){
+                    curState.setRelatedStates(concat(curState.getRelatedStates(),new int[] {state.getState()}));
+                }
+
+            }
+        }
+        return ts;
+    }
+
+    public int[] concat(int[] a, int[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+        int[] c= new int[aLen+bLen];
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+        return c;
+    }
+
+
+    private TransitionState getTransitionStateFromId(int id, ArrayList<TransitionState> stateList){
+        for(TransitionState ts : stateList){
             if (ts.getState() == id){
                 return ts;
             }
@@ -99,7 +196,7 @@ public class TransitionSystem {
         ArrayList<TransitionState> tsList = new ArrayList<TransitionState>();
 
         for(int id : ids){
-            tsList.add(getTransitionStateFromId(id));
+            tsList.add(getTransitionStateFromId(id, this.getStates()));
         }
 
         return tsList;
