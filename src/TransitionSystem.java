@@ -105,9 +105,14 @@ public class TransitionSystem{
 
         }
 
+        // Remove input states
+
         return returnStates;
     }
 
+    public ArrayList<TransitionState> ctlAX(ArrayList<TransitionState> states){
+        return not(ctlEX(not(states)));
+    }
 
 
     public ArrayList<TransitionState> ctlEX(ArrayList<TransitionState> tsInputs){
@@ -124,12 +129,22 @@ public class TransitionSystem{
         return tsList;
     }
 
+    public boolean ctlCheckInitialStates(ArrayList<TransitionState> states){
 
+        for(TransitionState state: this.states){
+            outerbreak:
+            if(state.isInitalState()){
+                for(TransitionState state1 : states){
+                    if(state1.getState() == state.getState()){
+                        break outerbreak;
+                    }
+                }
+                return false;
+            }
 
-    public ArrayList<TransitionState> ctlAX(ArrayList<TransitionState> states){
-        return not(ctlEX(not(states)));
+        }
+        return true;
     }
-
 
     // ------------------------------------------------- Helper methods --------------------------------------------- //
 
@@ -242,20 +257,4 @@ public class TransitionSystem{
         return toString;
     }
 
-    public boolean ctlCheckInitialStates(ArrayList<TransitionState> states){
-
-        for(TransitionState state: this.states){
-            outerbreak:
-            if(state.isInitalState()){
-                for(TransitionState state1 : states){
-                    if(state1.getState() == state.getState()){
-                        break outerbreak;
-                    }
-                }
-                return false;
-            }
-
-        }
-        return true;
-    }
 }
